@@ -79,15 +79,15 @@ The Tokenized Savings Circle is a smart contract that automates the traditional 
 
 ### Example Scenario
 
-**Setup**: 5 members, 1 ETH per round, 7 days per round
+**Setup**: 5 members, 1 RBTC per round, 7 days per round
 
-- **Round 0**: All contribute 1 ETH → Member A receives 5 ETH
-- **Round 1**: All contribute 1 ETH → Member B receives 5 ETH  
-- **Round 2**: All contribute 1 ETH → Member C receives 5 ETH
-- **Round 3**: All contribute 1 ETH → Member D receives 5 ETH
-- **Round 4**: All contribute 1 ETH → Member E receives 5 ETH
+- **Round 0**: All contribute 0.1 RBTC → Member A receives 0.5 RBTC
+- **Round 1**: All contribute 0.1 RBTC → Member B receives 0.5 RBTC  
+- **Round 2**: All contribute 0.1 RBTC → Member C receives 0.5 RBTC
+- **Round 3**: All contribute 0.1 RBTC → Member D receives 0.5 RBTC
+- **Round 4**: All contribute 0.1 RBTC → Member E receives 0.5 RBTC
 
-Total: Each member contributes 5 ETH and receives 5 ETH over 5 rounds.
+Total: Each member contributes 0.5 RBTC and receives 0.5 RBTC over 5 rounds.
 
 ## Contract Architecture
 
@@ -137,17 +137,26 @@ constructor(
 ### Deployment Example
 
 ```javascript
-// Using ethers.js v6
-const contributionAmount = ethers.parseEther("1.0"); // 1 ETH
-const roundDuration = 7 * 24 * 60 * 60; // 7 days in seconds
-const maxMembers = 10;
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-const SavingsCircle = await ethers.getContractFactory("SavingsCircle");
-const circle = await SavingsCircle.deploy(
+const SavingsCircleModule = buildModule("SavingsCircleModule", (m) => {
+  // Deployment parameters
+  const contributionAmount = m.getParameter("contributionAmount", "1000000000000000000"); 
+  const roundDuration = m.getParameter("roundDuration", 604800); // 1 week in seconds (60 * 60 * 24 * 7)
+  const maxMembers = m.getParameter("maxMembers", 10);
+
+  // Deploy the SavingsCircle contract
+  const savingsCircle = m.contract("SavingsCircle", [
     contributionAmount,
     roundDuration,
-    maxMembers
-);
+    maxMembers,
+  ]);
+
+  // Return the deployed contract for potential use in other modules
+  return { savingsCircle };
+});
+
+module.exports = SavingsCircleModule;
 ```
 
 ## Usage Guide
@@ -237,7 +246,7 @@ event RoundAdvanced(uint256 newRound);
 event CircleCompleted();
 ```
 
-## 👀 View Functions
+## View Functions
 
 ### Circle Information
 ```solidity
@@ -319,7 +328,7 @@ describe("SavingsCircle", function() {
 });
 ```
 
-## ⚡ Gas Optimization
+## Gas Optimization
 
 ### Design Decisions
 
