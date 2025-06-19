@@ -190,7 +190,7 @@ function getMemberInfo(address member) external view returns (bool hasReceived, 
 
 ### For Admin
 
-#### 1. Start Circle
+#### 1. Start Circle First
 ```solidity
 function startCircle() external onlyAdmin
 ```
